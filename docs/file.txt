@@ -1,0 +1,5 @@
+We’re doing our best to provide constructive advice for deciding among the wide variety of tools. We’re steering new developers away from unproven tools. We’re reminding them that being a developer is hard, and that learning new tools is a big part of the job.
+If you’re new to JavaScript, remember that all of these new tools are very much a good thing. The open source npm ecosystem is very much a good thing.
+They will make you a happier, more powerful developer.
+They will help you better serve your end users.
+And if you’re one of the many devs going through JavaScript Fatigue yourself, and are worried that you might burn out, well:
