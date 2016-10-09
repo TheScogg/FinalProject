@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SelfSentinel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div id="header" class="container-fluid">
+        <div id="row">
+            <div class="col-md-1">
+
+            </div>
+            <div id="nav" class="col-md-11">
+                <!--<div id="introText">Introduction Text Goes Here...Something Catchy.</div>-->
+                <ul class="navLinks">
+                    <li><a href="index.html" class="selected">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contactUs.html">Contact Us</a></li>
+                    <li><a href="next.html">What's Next?</a></li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="setDate" class="container-fluid">
+         <div id="row">
+             <div class="col-md-4">
+                 <input type="text" id="datepicker">
+                 <span id="showDate"></span>
+             </div>
+             <div class="col-md-4" id="displayDate">
+                <!-- Selected Date is Inserted Here -->
+             </div>
+         </div>
+    </div>
+
+    <div id="activities">
+        <div id="row">
+            <div class="col-md-8">
+
+            </div>
+        </div>
+    </div>
+
+    <div id="chart">
+        <div id="row">
+            <div class="col-md-8">
+                <canvas id="myChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div id="submitButton">
+        <div id="row">
+            <div class="col-md-12">
+                <form>
+                    <input type="submit" value="Click to Submit" id="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
