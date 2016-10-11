@@ -49,3 +49,22 @@ a.selected {
     font-family: Calibri;
     text-align: center;
 }
+
+/*====================
+STYLING PAGE ELEMENTS
+=====================*/
+
+.bgBox {
+    background-color: white;
+    margin: 10px;
+}
+
+/*====================
+BOOTSTRAP CSS
+=====================*/
+
+/* Center col in row */
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}

@@ -15,10 +15,20 @@
 $(document).ready(function () {
     //Object which will hold selected date, activities, and survey data.
     var myDay = {
-        //'10/06/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
-        //    'survey' : [10,8,9]
-        //}
+        '10/06/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
+            'survey' : [10,8,9]
+        },
+        '10/07/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
+            'survey' : [5,5,7]
+        },
+        '10/08/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
+            'survey' : [3,4,6]
+        }
     };
+
+    for (prop in myDay) {
+        console.log(myDay[prop].survey);
+    }
 
     var activities = [];
     var survey = [];
@@ -43,46 +53,44 @@ $(document).ready(function () {
 
     }
 
-    function chart (myDay) {
-        var myData = [9,5,8,3,5,10,5,9];
+    function getChartData(myDay, index) {
+        var myArray = new Array;
 
-        var ctx = document.getElementById("myChart");
+        for (prop in myDay) {
+            myArray.push(myDay[prop].survey[index]);
+        }
+
+        console.log(myArray);
+        //return [index+1, index+2, index+3];
+        return myArray;
+    }
+
+    //Draw Chart with data from myDay object
+    function chart (myDay) {
+
+        var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+                labels: Object.keys(myDay),
                 datasets: [{
-                    label: '# of Votes',
-                    data: myData,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255,99,132,1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
+                    label: 'Mental',
+                    data: getChartData(myDay, 0),
+                    backgroundColor: "rgba(153,255,51,0.4)"
+                }, {
+                    label: 'Physical',
+                    data: getChartData(myDay, 1),
+                    backgroundColor: "rgba(244,235,66,0.4)"
+                },
+                    {
+                    label: 'Psychological',
+                    data: getChartData(myDay, 2),
+                    backgroundColor: "rgba(66,244,69,0.4)"
                 }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero:true
-                        }
-                    }]
-                }
             }
         });
+
+
     }
 
     chart(myDay);
