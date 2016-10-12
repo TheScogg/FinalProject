@@ -5,14 +5,14 @@
 //IMPORTANT NOTES FOR LATER
 /* Date : {selectedDate} Global Variable */
 
-//Create Object to store
-    //Date
-    //Selected Buttons
-    //Happiness Survey Results
-
 //GraphJS / FusionCharts
 
 $(document).ready(function () {
+    //var myActivities = ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends"];
+    var myActivities = {
+        "activity" : ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends"]
+    };
+
     //Object which will hold selected date, activities, and survey data.
     var myDay = {
         '10/06/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
@@ -53,6 +53,29 @@ $(document).ready(function () {
 
     }
 
+    //Color activity buttons
+    function colorActivities() {
+
+    }
+
+    //Add activity buttons to #activities from activities array
+    function populateActivities (activities) {
+        var $activityHTML = "";
+
+        //for (activity in activities[activity]) {
+        //    $activityHTML += ('<button type="button" class="btn btn-warning">' +
+        //        activities[activity] + '</button>')
+        //}
+
+        for (var i = 0; i < activities.activity.length; i++) {
+                $activityHTML += ('<button type="button" class="btn btn-warning">' +
+                    activities.activity[i] + '</button>')
+        }
+
+        $("#activities span").append($activityHTML);
+    }
+
+    //Pull chart data from myDay object and return array to data prop in chart function
     function getChartData(myDay, index) {
         var myArray = new Array;
 
@@ -67,7 +90,7 @@ $(document).ready(function () {
 
     //Draw Chart with data from myDay object
     function chart (myDay) {
-
+        //chartJS : http://www.chartjs.org/docs/#line-chart
         var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'line',
@@ -93,7 +116,9 @@ $(document).ready(function () {
 
     }
 
+    populateActivities(myActivities);
     chart(myDay);
+
 
     $("#submit").click('on', function (e) {
         e.preventDefault();
