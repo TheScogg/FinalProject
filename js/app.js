@@ -2,6 +2,7 @@
  * Created by thesc on 9/29/2016.
  */
 
+//mongoose = require('mongoose');
 //IMPORTANT NOTES FOR LATER
 /* Date : {selectedDate} Global Variable */
 
@@ -49,7 +50,7 @@ $(document).ready(function () {
     });
 
     //Add new data to myDay object
-    function populateDB () {
+    function populateDB (selectedDate, activities, survey) {
 
     }
 
@@ -123,6 +124,13 @@ $(document).ready(function () {
     $("#submit").click('on', function (e) {
         e.preventDefault();
         populateDB(selectedDate, activities, survey);
+        console.log("Submit Clicked - index.html");
+
+        //Test creating DB document - modify later
+        MyDay.create({date: '10/18/16', activities: ['Went Out to Eat', 'Visited Friends', 'Read a Book', 'Went Hiking'], survey: [4,2,5]}, function(err, myDay){
+            if(err) console.log(err);
+            else console.log(myDay);
+        });
     });
 
 
