@@ -73,7 +73,7 @@ $(document).ready(function () {
                     activities.activity[i] + '</button>')
         }
 
-        $("#activities span").append($activityHTML);
+        $("#unselected").append($activityHTML);
     }
 
     //Pull chart data from myDay object and return array to data prop in chart function
@@ -120,17 +120,26 @@ $(document).ready(function () {
     populateActivities(myActivities);
     chart(myDay);
 
+    /* CLICK EVENTS */
 
+    //Home Page Click Events
     $("#submit").click('on', function (e) {
         e.preventDefault();
-        populateDB(selectedDate, activities, survey);
+        //populateDB(selectedDate, activities, survey);
         console.log("Submit Clicked - index.html");
-
-        //Test creating DB document - modify later
-        MyDay.create({date: '10/18/16', activities: ['Went Out to Eat', 'Visited Friends', 'Read a Book', 'Went Hiking'], survey: [4,2,5]}, function(err, myDay){
-            if(err) console.log(err);
-            else console.log(myDay);
+        $("#selected button").each(function(index) {
+            console.log($(this).text());
         });
+        ////Test creating DB document - modify later
+        //MyDay.create({date: '10/18/16', activities: ['Went Out to Eat', 'Visited Friends', 'Read a Book', 'Went Hiking'], survey: [4,2,5]}, function(err, myDay){
+        //    if(err) console.log(err);
+        //    else console.log(myDay);
+        //});
+    });
+
+    //When button in #activity div, move to other subDiv    #unselected <---> #selected
+    $("#activities button").click('on', function () {
+        $(this).parent().siblings().append(this);
     });
 
 
