@@ -3,13 +3,13 @@
  */
 
 //mongoose = require('mongoose');
+
 //IMPORTANT NOTES FOR LATER
 /* Date : {selectedDate} Global Variable */
 
 //GraphJS / FusionCharts
 
 $(document).ready(function () {
-    //var myActivities = ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends"];
     var myActivities = {
         "activity" : ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends"]
     };
