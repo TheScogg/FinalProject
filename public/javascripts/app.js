@@ -14,6 +14,7 @@ $(document).ready(function () {
         "activity" : ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends"]
     };
 
+    //////* THINK I'LL BE ABLE TO DELETE AFTER LINKING TO REAL MONGODB DATABASE *///////
     //Object which will hold selected date, activities, and survey data.
     var myDay = {
         '10/06/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
@@ -28,10 +29,11 @@ $(document).ready(function () {
     };
 
     for (prop in myDay) {
-        console.log(myDay[prop].survey);
+        //console.log(myDay[prop].survey);
     }
+    //////* THINK I'LL BE ABLE TO DELETE AFTER LINKING TO REAL MONGODB DATABASE *///////
 
-    var activities = [];
+
     var survey = [];
 
     //Run the calendar widget and get date from user
@@ -47,6 +49,8 @@ $(document).ready(function () {
             startDate: '01/01/2000',
             firstDay: 1
         }).datepicker("show");
+
+
     });
 
     //Add new data to myDay object
@@ -84,7 +88,6 @@ $(document).ready(function () {
             myArray.push(myDay[prop].survey[index]);
         }
 
-        console.log(myArray);
         //return [index+1, index+2, index+3];
         return myArray;
     }
@@ -120,42 +123,61 @@ $(document).ready(function () {
     populateActivities(myActivities);
     chart(myDay);
 
-    function addNewDay() {
-        var date = "test a date";
-        var activities = "test an activity";
-        var survey = "test a survey";
-
+    function addNewDay(activities) {
+        console.log(activities);
         var sendInfo = {
-            date: date,
-            activities: activities,
-            survey: survey
+            "date": selectedDate,
+            "activities": activities,
+            "survey": "testSurvey"
         };
-        
-        $.ajax({
-            type: "POST",
-            url: "/db",
-            dataType: "application/json",
-            contentType: "application/json",
-            success: function (msg) {
-                if (msg) {
-                    alert("Somebody" + survey + " was added in list !");
-                    location.reload(true);
-                } else {
-                    alert("Cannot add to list !");
-                }
-            },
 
-            data: sendInfo
+        //ASK WHY IT POSTS WHEN CONVERTED TO STRING, BUT NOT AS ARRAY.
+        $.post("http://localhost:8080/db",{date: sendInfo.date,activities: JSON.stringify(sendInfo.activities), survey: "10"}, function(data){
+            if(data==='done')
+            {
+                alert("login success");
+            } else {
+                console.log(data);
+            }
         });
+
+        //$.ajax({
+        //    type: 'post',
+        //    url: 'db',
+        //    data: (sendInfo),
+        //    headers: {
+        //
+        //    },
+        //    success: function (data) {
+        //        console.log('Success');
+        //        console.log(data);
+        //    },
+        //    error: function () {
+        //        console.log('We are sorry but our servers are having an issue right now');
+        //    }
+        //})
     }
 
     /* CLICK EVENTS */
 
     //Home Page Click Events
     $("#submit").click('on', function (e) {
+        var activities = [];
+        //Prevent default action
         e.preventDefault();
+        //Add user input (Date, Acitivities, and Survey to Mongo Document)
 
-        addNewDay();
+        //Retrieves text in all *selected* buttons
+        //var $selectedActivities = ($("#selected").children("button").text());
+        $("#selected").children("button").each(function (index, value) {
+            activities[index] = $(this).text();
+        });
+
+        addNewDay(activities);
+
+
+
+        console.log(activities);
 
     });
 

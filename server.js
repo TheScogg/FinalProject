@@ -1,9 +1,13 @@
 var express = require('express');
+var bodyParser = require('body-parser');
+var app = express();
+
 var mongoose = require('mongoose');
 var path = require('path');
-var app = express();
-var bodyParser = require('body-parser');
 
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 //var bodyParser = require('body-parser')
 //app.use( bodyParser.json() );       // to support JSON-encoded bodies
@@ -17,9 +21,8 @@ var bodyParser = require('body-parser');
 // Launch server on Port 3000 //
 // Point server at public directory - try to figure out the why of how this works
 app.use('/public', express.static('public'));
-app.use(bodyParser.json());
 
-mongoose.connect('mongodb://localhost/ecomm_database');
+mongoose.connect('mongodb://localhost/projectDB');
 
 app.set('view engine', 'html');
 
@@ -39,7 +42,7 @@ var Schema = mongoose.Schema;
 
 var DaySchema = new Schema({
     date: String,
-    activities: String,
+    activities: Object,
     survey: String
 });
 
@@ -59,38 +62,32 @@ app.get('/db', function (req, res){
 
 // Post data to MongoDB database
 app.post('/db', function (req, res){
-    console.log(req);
-    var product;
-    var debugJSON = {
-        date: "08/22/16",
-        activities: "Flying",
-        survey: "6"
-    };
+    console.log(req.body.activities);
+    var day;
 
-    //I know this part works well because I can pass in mock values and it saves to database
-    product = new DayModel({
-        //DEBUGGING INTERNAL SERVER ERROR 500
-
-
-        date: debugJSON.date,
-        activities: req.body.activities,
+    day = new DayModel({
+        date: req.body.date,
+        activities: JSON.parse(req.body.activities),
         survey: req.body.survey
-        //date: req.body.date,
-        //activities: req.body.activities,
-        //survey: req.body.survey
-        //date: "Today",
-        //activities: "Ran",
-        //survey: "Good"
     });
-    product.save(function (err) {
+    day.save(function (err) {
         if (!err) {
             return console.log("created");
         } else {
             return console.log(err);
         }
     });
-    return res.send(product);
+    return res.send(day);
 });
+
+
+//app.post('/db',function(req,res){
+//    var user_name=req.body.user;
+//    var password=req.body.password;
+//    console.log("User name = "+user_name+", password is "+password);
+//    res.end("yes");
+//});
+
 
 // Read a single day's data by ID
 app.get('/db/:id', function (req, res){
@@ -120,4 +117,6 @@ app.put('/db/:id', function (req, res){
     });
 });
 
-app.listen(3000);
+app.listen(8080, function () {
+    console.log("Started on PORT 8080")
+});
