@@ -120,21 +120,43 @@ $(document).ready(function () {
     populateActivities(myActivities);
     chart(myDay);
 
+    function addNewDay() {
+        var date = "test a date";
+        var activities = "test an activity";
+        var survey = "test a survey";
+
+        var sendInfo = {
+            date: date,
+            activities: activities,
+            survey: survey
+        };
+        
+        $.ajax({
+            type: "POST",
+            url: "/db",
+            dataType: "application/json",
+            contentType: "application/json",
+            success: function (msg) {
+                if (msg) {
+                    alert("Somebody" + survey + " was added in list !");
+                    location.reload(true);
+                } else {
+                    alert("Cannot add to list !");
+                }
+            },
+
+            data: sendInfo
+        });
+    }
+
     /* CLICK EVENTS */
 
     //Home Page Click Events
     $("#submit").click('on', function (e) {
         e.preventDefault();
-        //populateDB(selectedDate, activities, survey);
-        console.log("Submit Clicked - index.html");
-        $("#selected button").each(function(index) {
-            console.log($(this).text());
-        });
-        ////Test creating DB document - modify later
-        //MyDay.create({date: '10/18/16', activities: ['Went Out to Eat', 'Visited Friends', 'Read a Book', 'Went Hiking'], survey: [4,2,5]}, function(err, myDay){
-        //    if(err) console.log(err);
-        //    else console.log(myDay);
-        //});
+
+        addNewDay();
+
     });
 
     //When button in #activity div, move to other subDiv    #unselected <---> #selected
