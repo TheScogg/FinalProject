@@ -31,32 +31,41 @@ $(document).ready(function () {
     for (prop in myDay) {
         //console.log(myDay[prop].survey);
     }
-    //////* THINK I'LL BE ABLE TO DELETE AFTER LINKING TO REAL MONGODB DATABASE *///////
-
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
 
     var survey = [];
 
-    //Run the calendar widget and get date from user
+
+    /////////////////////////////////////////////////////////////
+    //////*Run the calendar widget and get date from user*//////
+    var today = new Date();
+    //Defaults to today's date by creating date object and assigning to value attribute of #datepicker div
+    var selectedDate = ("0" + today.getMonth()).slice(-2) + "/" + ("0" + today.getDate()).slice(-2)
+                            + "/" + today.getFullYear();
+
+    $("#datepicker").attr("value", selectedDate);
     $("#datepicker").click("on", function () {
         $(this).datepicker({
             onSelect: function (date) {
-                $("#displayDate").html("Today's Date Is " + date);
+                $("#displayDate").html("Selected Date: " + date);
                 //Global variable to store date
                 selectedDate = date;
             },
             selectWeek: true,
             inline: true,
             startDate: '01/01/2000',
-            firstDay: 1
+            firstDay: 1,
+            setDate: '7/11/2016'
         }).datepicker("show");
-
-
     });
 
-    //Add new data to myDay object
-    function populateDB (selectedDate, activities, survey) {
-
-    }
+    /////////////////////////////////////////////////////////////
+    //////*Make Survey Selections Pretty with selectmenu/////////
+    ///// JQUERY UI PLUGIN (Mental, Physical, Psychological*/////
+    $( "#physical" ).selectmenu({width:70});
+    $( "#mental" ).selectmenu({width:70});
+    $( "#psychological" ).selectmenu({width:70});
 
     //Color activity buttons
     function colorActivities() {
@@ -123,16 +132,16 @@ $(document).ready(function () {
     populateActivities(myActivities);
     chart(myDay);
 
-    function addNewDay(activities) {
+    function addNewDay(date, activities) {
         console.log(activities);
         var sendInfo = {
-            "date": selectedDate,
+            "date": date,
             "activities": activities,
             "survey": "testSurvey"
         };
 
         //ASK WHY IT POSTS WHEN CONVERTED TO STRING, BUT NOT AS ARRAY.
-        $.post("http://localhost:8080/db",{date: sendInfo.date,activities: JSON.stringify(sendInfo.activities), survey: "10"}, function(data){
+        $.post("http://localhost:3000/db",{date: sendInfo.date,activities: JSON.stringify(sendInfo.activities), survey: "10"}, function(data){
             if(data==='done')
             {
                 alert("login success");
@@ -140,45 +149,29 @@ $(document).ready(function () {
                 console.log(data);
             }
         });
-
-        //$.ajax({
-        //    type: 'post',
-        //    url: 'db',
-        //    data: (sendInfo),
-        //    headers: {
-        //
-        //    },
-        //    success: function (data) {
-        //        console.log('Success');
-        //        console.log(data);
-        //    },
-        //    error: function () {
-        //        console.log('We are sorry but our servers are having an issue right now');
-        //    }
-        //})
     }
 
     /* CLICK EVENTS */
-
     //Home Page Click Events
+
+//Retrieve Survey Scores. Any way to refactory, instead of running this for all 3 values?
+//        $("#physical-button > span.ui-selectmenu-text").text(); 
+
+
     $("#submit").click('on', function (e) {
         var activities = [];
         //Prevent default action
         e.preventDefault();
-        //Add user input (Date, Acitivities, and Survey to Mongo Document)
 
-        //Retrieves text in all *selected* buttons
-        //var $selectedActivities = ($("#selected").children("button").text());
+        //Retrieves text in all *selected* activity buttons and assigns to array to be passed to addNewDay function
         $("#selected").children("button").each(function (index, value) {
             activities[index] = $(this).text();
         });
 
-        addNewDay(activities);
+        //Retrieves survey scores (default to 5)
 
-
-
-        console.log(activities);
-
+        //Add user input (Date, Activities, and Surveys to Mongo Document)
+        addNewDay(selectedDate, activities);
     });
 
     //When button in #activity div, move to other subDiv    #unselected <---> #selected

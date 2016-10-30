@@ -59,6 +59,12 @@ STYLING PAGE ELEMENTS
     margin: 10px;
 }
 
+#selected, #unselected {
+    height: 100px;
+    background-color: white;
+    border-bottom: 5px solid black;
+}
+
 /*====================
 BOOTSTRAP CSS
 =====================*/
