@@ -34,9 +34,6 @@ $(document).ready(function () {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    var survey = [];
-
-
     /////////////////////////////////////////////////////////////
     //////*Run the calendar widget and get date from user*//////
     var today = new Date();
@@ -132,16 +129,18 @@ $(document).ready(function () {
     populateActivities(myActivities);
     chart(myDay);
 
-    function addNewDay(date, activities) {
+    function addNewDay(date, activities, surveyArray) {
         console.log(activities);
         var sendInfo = {
             "date": date,
             "activities": activities,
-            "survey": "testSurvey"
+            "survey": surveyArray
         };
 
         //ASK WHY IT POSTS WHEN CONVERTED TO STRING, BUT NOT AS ARRAY.
-        $.post("http://localhost:3000/db",{date: sendInfo.date,activities: JSON.stringify(sendInfo.activities), survey: "10"}, function(data){
+        $.post("http://localhost:3000/db",{date: sendInfo.date,
+            activities: JSON.stringify(sendInfo.activities), 
+            survey: JSON.stringify(surveyArray)}, function(data){
             if(data==='done')
             {
                 alert("login success");
@@ -157,9 +156,10 @@ $(document).ready(function () {
 //Retrieve Survey Scores. Any way to refactory, instead of running this for all 3 values?
 //        $("#physical-button > span.ui-selectmenu-text").text(); 
 
-
     $("#submit").click('on', function (e) {
         var activities = [];
+        var surveyArray = [];
+
         //Prevent default action
         e.preventDefault();
 
@@ -169,9 +169,17 @@ $(document).ready(function () {
         });
 
         //Retrieves survey scores (default to 5)
+        // $("#physical-button > span.ui-selectmenu-text").text(4); 
+        // $("#mental-button > span.ui-selectmenu-text").text(4); 
+        // $("#psychological-button > span.ui-selectmenu-text").text(4); 
 
+        $("#surveys").children(".ui-selectmenu-button").each(function (index,val) {
+            surveyArray.push($(this).children().text());
+        });
+
+        console.log(surveyArray);
         //Add user input (Date, Activities, and Surveys to Mongo Document)
-        addNewDay(selectedDate, activities);
+        addNewDay(selectedDate, activities, surveyArray);
     });
 
     //When button in #activity div, move to other subDiv    #unselected <---> #selected

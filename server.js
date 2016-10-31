@@ -114,7 +114,7 @@ var Schema = mongoose.Schema;
 var DaySchema = new Schema({
     date: String,
     activities: Object,
-    survey: String
+    survey: Object
 });
 
 var username = "TheScogg";
@@ -141,7 +141,7 @@ app.post('/db', function (req, res){
     day = new DayModel({
         date: req.body.date,
         activities: JSON.parse(req.body.activities),
-        survey: req.body.survey
+        survey: JSON.parse(req.body.survey)
     });
     day.save(function (err) {
         if (!err) {
