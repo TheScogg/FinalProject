@@ -1,9 +1,19 @@
 var express = require('express');
-var bodyParser = require('body-parser');
 var app = express();
+
+var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var cookieSession = require('cookie-session'); //Try this TODAY
+var cookieParser = require('cookie-parser');
 var path = require('path');
+var io =  require('socket.io')();
+
+//import Mongoose Database CODE
+var database = require('./public/javascripts/database');
+
 mongoose.connect('mongodb://localhost/projectDB');
+
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/public', express.static('public'));
@@ -46,9 +56,14 @@ passport.deserializeUser(function(user, done) {
 app.get('/auth/github', passport.authenticate('github'));
 
 // GitHub will call this URL
-app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/' }),
+app.get('/auth/github/callback', passport.authenticate('github', {
+//   successRedirect: '/index',
+  failureRedirect: '/'
+}),
   function(req, res) {
-    res.redirect('/');
+    // Upon successful login, redirect to /username, for example, localhost:3000/TheScogg
+    // Have to find a way to make this secure, since anybody can access anybody's account by typing their name in the address bar.
+    res.redirect('/' + req.user.username );
   }
 );
 
@@ -56,17 +71,14 @@ app.get('/', function (req, res) {
   var html = "<ul>\
     <li><a href='/auth/github'>GitHub</a></li>\
     <li><a href='/logout'>logout</a></li>\
-        <li><a href='/index'>main page</a></li>\
   </ul>";
-    // dump the user for debugging
-    if (req.isAuthenticated()) {
-    html += "<p>authenticated as user:</p>"
-    html += "<pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
-    res.redirect('/index');
+// dump the user for debugging
 
-    }
-    
-  res.send(html);
+if (req.isAuthenticated()) {
+  html += "<p>authenticated as user:</p>"
+  html += "<pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
+}
+  res.send(html);  
 });
 
 // Simple middleware to ensure user is authenticated.
@@ -75,32 +87,16 @@ app.get('/', function (req, res) {
 // the request will proceed.  Otherwise, the user will be redirected to the
 // login page.
 function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
+    //Added 2nd condition : checks to make sure user inputted path is their username & not somebody else's
+  if (req.isAuthenticated() && req._parsedUrl.pathname === "/" + req.user.username) {
     // req.user is available for use here
+    // console.log(req.user.username);
+    myUsername = (req.user.username);
     return next(); }
 
   // denied. redirect to login
   res.redirect('/')
 }
-
-app.get('/protected', ensureAuthenticated, function(req, res) {
-  res.send("access granted. secure stuff happens here");
-});
-
-
-//////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-//Serve index.html when no path is specified
-app.get('/index', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/index.html'));
-});
-
-
 
 app.get('/logout', function(req, res) {
     console.log('logging out');
@@ -108,18 +104,33 @@ app.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
-// Create MongoDB database
-var Schema = mongoose.Schema;
-
-var DaySchema = new Schema({
-    date: String,
-    activities: Object,
-    survey: Object
+//ensureAuthenticated checks to make sure user is logged in through github.
+app.get('/:username', ensureAuthenticated, function(req, res) {
+    res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
-var username = "TheScogg";
+app.get('/api/user_data', function(req, res) {
 
-var DayModel = mongoose.model(username, DaySchema);
+            if (req.user === undefined) {
+                // The user is not logged in
+                res.json({});
+            } else {
+                res.json({
+                    username: req.user
+                });
+            }
+        });
+        
+
+//////////////////////////////////////////////////////////////////
+
+
+/* ////////////////////////////////////////////// */
+/* IMPORTED MONGOOSE SCHEMA CODE FROM database.js*/
+
+//Will eventually point to name of user, instead of test name TheScogg
+
+/* ////////////////////////////////////////////// */
 
 /* CODE STOLEN FROM https://pixelhandler.com/posts/develop-a-restful-api-using-nodejs-with-express-and-mongoose */
 // Display MongoDB JSON data for user
@@ -133,8 +144,12 @@ app.get('/db', function (req, res){
     });
 });
 
+
 // Post data to MongoDB database
 app.post('/db', function (req, res){
+    console.log(req.user.username);
+    var DayModel = mongoose.model(req.user.username, database.DaySchema);
+
     console.log(req.body.activities);
     var day;
 
@@ -185,3 +200,10 @@ var server = app.listen(3000, function () {
     console.log("Node Server Running at http://%s:%s",
     server.address().address, server.address().port);
 });
+
+
+/* 
+- how do i pass username from passport into main scope? surround whole script with function? (LINE 69 / LINE 124)
+
+
+*/

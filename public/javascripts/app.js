@@ -10,6 +10,15 @@
 //GraphJS / FusionCharts
 
 $(document).ready(function () {
+    //Access username through API from passport-github
+    // $.getJSON("api/user_data", function(data) {
+    //     // Make sure the data contains the username as expected before using it
+    //     if (data.hasOwnProperty('username')) {
+    //         console.log(data.username.username);
+    //     }
+    // });
+
+
     var myActivities = {
         "activity" : ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends"]
     };
@@ -63,6 +72,7 @@ $(document).ready(function () {
     $( "#physical" ).selectmenu({width:70});
     $( "#mental" ).selectmenu({width:70});
     $( "#psychological" ).selectmenu({width:70});
+
 
     //Color activity buttons
     function colorActivities() {
