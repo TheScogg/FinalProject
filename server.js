@@ -67,6 +67,18 @@ app.get('/auth/github/callback', passport.authenticate('github', {
   }
 );
 
+app.get('/db', function (req, res){
+    var DayModel = mongoose.model(req.user.username, database.DaySchema);
+
+    return DayModel.find(function (err, day) {
+        if (!err) {
+            return res.send(day);
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
 app.get('/', function (req, res) {
   var html = "<ul>\
     <li><a href='/auth/github'>GitHub</a></li>\
@@ -88,10 +100,10 @@ if (req.isAuthenticated()) {
 // login page.
 function ensureAuthenticated(req, res, next) {
     //Added 2nd condition : checks to make sure user inputted path is their username & not somebody else's
-  if (req.isAuthenticated() && req._parsedUrl.pathname === "/" + req.user.username) {
+  if (req.isAuthenticated() && req._parsedUrl.pathname === "/" + req.user.username || req._parsedUrl.pathname === "/db") {
     // req.user is available for use here
     // console.log(req.user.username);
-    myUsername = (req.user.username);
+    var myUsername = (req.user.username);
     return next(); }
 
   // denied. redirect to login
@@ -134,20 +146,10 @@ app.get('/api/user_data', function(req, res) {
 
 /* CODE STOLEN FROM https://pixelhandler.com/posts/develop-a-restful-api-using-nodejs-with-express-and-mongoose */
 // Display MongoDB JSON data for user
-app.get('/db', function (req, res){
-    return DayModel.find(function (err, products) {
-        if (!err) {
-            return res.send(products);
-        } else {
-            return console.log(err);
-        }
-    });
-});
 
 
 // Post data to MongoDB database
 app.post('/db', function (req, res){
-    console.log(req.user.username);
     var DayModel = mongoose.model(req.user.username, database.DaySchema);
 
     console.log(req.body.activities);
@@ -170,9 +172,10 @@ app.post('/db', function (req, res){
 
 // Read a single day's data by ID
 app.get('/db/:id', function (req, res){
-    return DayModel.findById(req.params.id, function (err, product) {
+    var DayModel = mongoose.model(req.user.username, database.DaySchema);
+    return DayModel.findById(req.params.id, function (err, day) {
         if (!err) {
-            return res.send(product);
+            return res.send(day);
         } else {
             return console.log(err);
         }
@@ -182,19 +185,20 @@ app.get('/db/:id', function (req, res){
 // Update a single day's data by ID
 app.put('/db/:id', function (req, res){
     return DayModel.findById(req.params.id, function (err, product) {
-        product.title = req.body.date;
-        product.description = req.body.activities;
-        product.style = req.body.survey;
-        return product.save(function (err) {
+        day.date = req.body.date;
+        day.activities = req.body.activities;
+        day.survey = req.body.survey;
+        return day.save(function (err) {
             if (!err) {
                 console.log("updated");
             } else {
                 console.log(err);
             }
-            return res.send(product);
+            return res.send(day);
         });
     });
 });
+
 
 var server = app.listen(3000, function () {
     console.log("Node Server Running at http://%s:%s",
@@ -203,7 +207,6 @@ var server = app.listen(3000, function () {
 
 
 /* 
-- how do i pass username from passport into main scope? surround whole script with function? (LINE 69 / LINE 124)
 
 
 */

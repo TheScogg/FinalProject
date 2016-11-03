@@ -139,6 +139,15 @@ $(document).ready(function () {
     populateActivities(myActivities);
     chart(myDay);
 
+    // Retrieve all existing database documents. 
+    // Find a way to search through these. 
+    $.get("/db/", function(data, textStatus, jqXHR) { 
+    console.log("Post resposne:"); 
+    console.dir(data); 
+    console.log(textStatus); 
+    console.dir(jqXHR); 
+    });
+
     function addNewDay(date, activities, surveyArray) {
         console.log(activities);
         var sendInfo = {
@@ -147,7 +156,7 @@ $(document).ready(function () {
             "survey": surveyArray
         };
 
-        //ASK WHY IT POSTS WHEN CONVERTED TO STRING, BUT NOT AS ARRAY.
+        //Sends a post request to app.get code in server.js
         $.post("http://localhost:3000/db",{date: sendInfo.date,
             activities: JSON.stringify(sendInfo.activities), 
             survey: JSON.stringify(surveyArray)}, function(data){
@@ -158,6 +167,8 @@ $(document).ready(function () {
                 console.log(data);
             }
         });
+
+
     }
 
     /* CLICK EVENTS */
