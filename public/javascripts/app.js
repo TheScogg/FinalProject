@@ -10,14 +10,22 @@
 //GraphJS / FusionCharts
 
 $(document).ready(function () {
-    //Access username through API from passport-github
-    // $.getJSON("api/user_data", function(data) {
-    //     // Make sure the data contains the username as expected before using it
-    //     if (data.hasOwnProperty('username')) {
-    //         console.log(data.username.username);
-    //     }
-    // });
+    //Get all existing database information
+        //This will be used to pass to chart
+        //
+    var getData = function () {$.get("/db/", function(data, textStatus, jqXHR) { 
+        console.log("Post resposne:"); 
+        // console.dir(data); 
+        // console.log(textStatus); 
+        // console.dir(jqXHR); 
+        
+        //Testing db traversal capabilities, and appending to random div for debug
+        data.forEach(function (index,val) {
+            $("#chart").append(index.date);
+        })
 
+        chart(data);
+    })};
 
     var myActivities = {
         "activity" : ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends"]
@@ -35,6 +43,10 @@ $(document).ready(function () {
         '10/08/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
             'survey' : [3,4,6]
         }
+    };
+
+    var dummyDay = function (data) {
+
     };
 
     for (prop in myDay) {
@@ -96,57 +108,72 @@ $(document).ready(function () {
         $("#unselected").append($activityHTML);
     }
 
-    //Pull chart data from myDay object and return array to data prop in chart function
-    function getChartData(myDay, index) {
-        var myArray = new Array;
-
-        for (prop in myDay) {
-            myArray.push(myDay[prop].survey[index]);
+    //Get Survey Data for Chart
+    function getSurvey(dataObject, surveyIndex) {
+        var survey = [];
+        console.log("BEFORE")
+        for (object in dataObject) {
+            survey.push(dataObject[object].survey[surveyIndex]);
         }
-
-        //return [index+1, index+2, index+3];
-        return myArray;
+        console.log(survey);
+        return survey;
     }
 
     //Draw Chart with data from myDay object
-    function chart (myDay) {
+    function chart (data) {
         //chartJS : http://www.chartjs.org/docs/#line-chart
+        //Get dates from data object, to be passed into myChart:data:labels
+        dates = [];
+        dataObject = {};
+
+        for (val in data) {
+            dates.push(data[val].date);
+            dataObject[data[val].date] = {'activities' : data[val].activities, 'survey' : data[val].survey};
+        }
+
+        console.log("MY Data Object: " , dataObject);
+
         var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Object.keys(myDay),
+                labels: dates,
+                //Object.keys(myDay)
                 datasets: [{
                     label: 'Mental',
-                    data: getChartData(myDay, 0),
+                    data: getSurvey(dataObject, 0),
+                    // data: getChartData(myDay, 0),
                     backgroundColor: "rgba(153,255,51,0.4)"
                 }, {
                     label: 'Physical',
-                    data: getChartData(myDay, 1),
+                    data: getSurvey(dataObject, 1),
                     backgroundColor: "rgba(244,235,66,0.4)"
                 },
                     {
                     label: 'Psychological',
-                    data: getChartData(myDay, 2),
+                    data: getSurvey(dataObject, 2),
                     backgroundColor: "rgba(66,244,69,0.4)"
                 }]
             }
         });
-
-
     }
 
+
+
+    getData();
     populateActivities(myActivities);
-    chart(myDay);
+
+    /* 
+    What is my goal here?
+    1. Populate the Chart
+        // Iterate through all data in db, assign to chart variables
+        
+    */
 
     // Retrieve all existing database documents. 
     // Find a way to search through these. 
-    $.get("/db/", function(data, textStatus, jqXHR) { 
-    console.log("Post resposne:"); 
-    console.dir(data); 
-    console.log(textStatus); 
-    console.dir(jqXHR); 
-    });
+
+
 
     function addNewDay(date, activities, surveyArray) {
         console.log(activities);
@@ -201,6 +228,7 @@ $(document).ready(function () {
         console.log(surveyArray);
         //Add user input (Date, Activities, and Surveys to Mongo Document)
         addNewDay(selectedDate, activities, surveyArray);
+        getData();
     });
 
     //When button in #activity div, move to other subDiv    #unselected <---> #selected

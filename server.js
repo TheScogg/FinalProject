@@ -100,7 +100,8 @@ if (req.isAuthenticated()) {
 // login page.
 function ensureAuthenticated(req, res, next) {
     //Added 2nd condition : checks to make sure user inputted path is their username & not somebody else's
-  if (req.isAuthenticated() && req._parsedUrl.pathname === "/" + req.user.username || req._parsedUrl.pathname === "/db") {
+  if (req.isAuthenticated() && req._parsedUrl.pathname === "/" + req.user.username || req._parsedUrl.pathname === "/db" || req._parsedUrl.pathname === "/sortdb") {
+      //&& req._parsedUrl.pathname === "/" + req.user.username || req._parsedUrl.pathname === "/db"
     // req.user is available for use here
     // console.log(req.user.username);
     var myUsername = (req.user.username);
@@ -118,6 +119,9 @@ app.get('/logout', function(req, res) {
 
 //ensureAuthenticated checks to make sure user is logged in through github.
 app.get('/:username', ensureAuthenticated, function(req, res) {
+        var DayModel = mongoose.model(req.user.username, database.DaySchema);
+
+    DayModel.find({}, null, {sort: {"date": "asc"}}, function (err, users) {});
     res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
@@ -167,8 +171,15 @@ app.post('/db', function (req, res){
             return console.log(err);
         }
     });
+
+// DayModel.find({}, null, {sort: {"date": "asc"}}, function (err, users) {
+// });
+
+
     return res.send(day);
 });
+
+
 
 // Read a single day's data by ID
 app.get('/db/:id', function (req, res){
