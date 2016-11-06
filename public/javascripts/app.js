@@ -21,7 +21,6 @@ $(document).ready(function () {
         
         //Testing db traversal capabilities, and appending to random div for debug
         data.forEach(function (index,val) {
-            $("#chart").append(index.date);
         })
 
         chart(data);
@@ -108,52 +107,104 @@ $(document).ready(function () {
         $("#unselected").append($activityHTML);
     }
 
-    //Get Survey Data for Chart
-    function getSurvey(dataObject, surveyIndex) {
-        var survey = [];
-        console.log("BEFORE")
-        for (object in dataObject) {
-            survey.push(dataObject[object].survey[surveyIndex]);
+    /* Sorting database data by date, and conveying to ChartsJS */
+
+    // Get & Return dates to function chart()
+    function getActivities(data) {
+        var activities = [];
+        var activitiesArray = [];
+
+        for (item in data) {
+            activitiesArray.push(data[item]);
         }
-        console.log(survey);
+
+        activitiesArray.sort(function(a,b) { 
+            return new Date(a.date).getTime() - new Date(b.date).getTime() 
+        });
+
+        for (object in activitiesArray) {
+            activities.push(activitiesArray[object].activities)
+        }
+
+        return activities;
+    }
+    
+    // Sort dates in ascending order (oldest --> newest) to be fed into chart
+    function getDates(data) {
+        var dates = [];
+        for (val in data) {
+            dates.push(data[val].date);
+        }
+
+        // Sort Dates in Ascending Order (Oldest --> Newest). Replaces in place, yay!. 
+        dates.sort(function(a,b) { 
+            return new Date(a).getTime() - new Date(b).getTime() 
+        });
+
+        return dates;
+    }
+
+    //Get & Return Survey Data for Chart
+    function getSurvey(data, surveyIndex) {
+        var survey = [];
+        dataArray = [];
+
+        for (item in data) {
+            dataArray.push(data[item]);
+        }
+      
+        dataArray.sort(function (a,b) {
+            return new Date(a.date).getTime() - new Date(b.date).getTime() 
+        });
+
+        for (object in dataArray) {
+            survey.push(dataArray[object].survey[surveyIndex]);
+        }
         return survey;
     }
 
     //Draw Chart with data from myDay object
     function chart (data) {
         //chartJS : http://www.chartjs.org/docs/#line-chart
-        //Get dates from data object, to be passed into myChart:data:labels
-        dates = [];
-        dataObject = {};
-
-        for (val in data) {
-            dates.push(data[val].date);
-            dataObject[data[val].date] = {'activities' : data[val].activities, 'survey' : data[val].survey};
-        }
-
-        console.log("MY Data Object: " , dataObject);
+        var activities = getActivities(data);
 
         var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: dates,
+                labels: getDates(data),
                 //Object.keys(myDay)
                 datasets: [{
                     label: 'Mental',
-                    data: getSurvey(dataObject, 0),
+                    data: getSurvey(data, 0),
                     // data: getChartData(myDay, 0),
-                    backgroundColor: "rgba(153,255,51,0.4)"
+                    backgroundColor: "rgba(51,51,51,0.4)"
                 }, {
                     label: 'Physical',
-                    data: getSurvey(dataObject, 1),
+                    data: getSurvey(data, 1),
                     backgroundColor: "rgba(244,235,66,0.4)"
                 },
                     {
                     label: 'Psychological',
-                    data: getSurvey(dataObject, 2),
+                    data: getSurvey(data, 2),
                     backgroundColor: "rgba(66,244,69,0.4)"
                 }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Your Daily Life Log'
+                },
+                tooltips: {
+                    callbacks: {
+                        // Custom Tooltip Labels with Activities for every particular day added
+                        label: function(tooltipItems, labelData) {
+                            console.log(labelData);
+                            return labelData.datasets[tooltipItems.datasetIndex].label + '\n' + ': ' + tooltipItems.yLabel + "  (" + activities[tooltipItems.index].join(',\n ') + ")";
+                        }   
+                    }
+                }
+
             }
         });
     }
@@ -215,11 +266,6 @@ $(document).ready(function () {
         $("#selected").children("button").each(function (index, value) {
             activities[index] = $(this).text();
         });
-
-        //Retrieves survey scores (default to 5)
-        // $("#physical-button > span.ui-selectmenu-text").text(4); 
-        // $("#mental-button > span.ui-selectmenu-text").text(4); 
-        // $("#psychological-button > span.ui-selectmenu-text").text(4); 
 
         $("#surveys").children(".ui-selectmenu-button").each(function (index,val) {
             surveyArray.push($(this).children().text());

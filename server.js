@@ -121,7 +121,7 @@ app.get('/logout', function(req, res) {
 app.get('/:username', ensureAuthenticated, function(req, res) {
         var DayModel = mongoose.model(req.user.username, database.DaySchema);
 
-    DayModel.find({}, null, {sort: {"date": "asc"}}, function (err, users) {});
+    DayModel.find({}, null, {sort: {"birds": "asc"}}, function (err, users) {});
     res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
