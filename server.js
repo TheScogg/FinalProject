@@ -195,10 +195,15 @@ app.get('/db/:id', function (req, res){
 
 // Update a single day's data by ID
 app.put('/db/:id', function (req, res){
-    return DayModel.findById(req.params.id, function (err, product) {
+    var DayModel = mongoose.model(req.user.username, database.DaySchema);
+    return DayModel.findById(req.params.id, function (err, day) {
+        console.log(req.body.activities);
         day.date = req.body.date;
-        day.activities = req.body.activities;
-        day.survey = req.body.survey;
+        day.activities= JSON.parse(req.body.activities),
+        day.survey= JSON.parse(req.body.survey)
+        // day.activities= req.body.activities,
+        // day.survey= req.body.survey
+
         return day.save(function (err) {
             if (!err) {
                 console.log("updated");

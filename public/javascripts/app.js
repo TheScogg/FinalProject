@@ -14,45 +14,13 @@ $(document).ready(function () {
         //This will be used to pass to chart
         //
     var getData = function () {$.get("/db/", function(data, textStatus, jqXHR) { 
-        console.log("Post resposne:"); 
-        // console.dir(data); 
-        // console.log(textStatus); 
-        // console.dir(jqXHR); 
-        
-        //Testing db traversal capabilities, and appending to random div for debug
-        data.forEach(function (index,val) {
-        })
-
         chart(data);
     })};
 
     var myActivities = {
-        "activity" : ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends"]
+        "activity" : ["Exercised", "Watched TV", "Took a Drive", "Worked", "Visited Friends", "Swimming", "Basketball"]
     };
 
-    //////* THINK I'LL BE ABLE TO DELETE AFTER LINKING TO REAL MONGODB DATABASE *///////
-    //Object which will hold selected date, activities, and survey data.
-    var myDay = {
-        '10/06/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
-            'survey' : [10,8,9]
-        },
-        '10/07/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
-            'survey' : [5,5,7]
-        },
-        '10/08/16' : {'activities' : ['ran', 'smoked cigarettes', 'talked to friend'],
-            'survey' : [3,4,6]
-        }
-    };
-
-    var dummyDay = function (data) {
-
-    };
-
-    for (prop in myDay) {
-        //console.log(myDay[prop].survey);
-    }
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////
     //////*Run the calendar widget and get date from user*//////
@@ -199,12 +167,10 @@ $(document).ready(function () {
                     callbacks: {
                         // Custom Tooltip Labels with Activities for every particular day added
                         label: function(tooltipItems, labelData) {
-                            console.log(labelData);
                             return labelData.datasets[tooltipItems.datasetIndex].label + '\n' + ': ' + tooltipItems.yLabel + "  (" + activities[tooltipItems.index].join(',\n ') + ")";
                         }   
                     }
                 }
-
             }
         });
     }
@@ -214,17 +180,6 @@ $(document).ready(function () {
     getData();
     populateActivities(myActivities);
 
-    /* 
-    What is my goal here?
-    1. Populate the Chart
-        // Iterate through all data in db, assign to chart variables
-        
-    */
-
-    // Retrieve all existing database documents. 
-    // Find a way to search through these. 
-
-
 
     function addNewDay(date, activities, surveyArray) {
         console.log(activities);
@@ -233,20 +188,73 @@ $(document).ready(function () {
             "activities": activities,
             "survey": surveyArray
         };
+        
+        // Get all existing database records, and search for date match
+        $.get("/db/", function(data, textStatus, jqXHR) { 
+            var isMatch = false;
+            data.forEach(function (val) {
+                // If new date and existing date match, pass id (idMatch) to function (put)
+                if (val.date == sendInfo.date) {
+                    isMatch = true;
+                    idMatch = (val._id);
+                }
+            });
 
-        //Sends a post request to app.get code in server.js
-        $.post("http://localhost:3000/db",{date: sendInfo.date,
-            activities: JSON.stringify(sendInfo.activities), 
-            survey: JSON.stringify(surveyArray)}, function(data){
-            if(data==='done')
-            {
-                alert("login success");
-            } else {
-                console.log(data);
-            }
+            // If Record date of request doesn't match existing date, post to database. Otherwise, use put request to update
+            if (!isMatch) {post();} else {put(idMatch);}
+        }).done(function (data) {
+            console.log("$.get Data Loaded", data);
         });
 
 
+        //Sends a post request to app.post code in server.js
+        function post() {
+            $.post("http://localhost:3000/db",{
+                date: sendInfo.date,
+                activities: JSON.stringify(sendInfo.activities), 
+                survey: JSON.stringify(surveyArray)}, 
+                function(data){
+                    if(data==='done')
+                    {
+                        alert("login success");
+                    } else {
+                        console.log(data);
+                    }
+            }).done(function (data) {
+                console.log("$.post Data Loaded", data);
+                getData()
+            });
+        }
+
+        // Updates selected existing record, accessed via id (idMatch)
+        function put(idMatch) {
+            console.log("Duplicate Date at id: " + idMatch);
+
+            jQuery.get("/db/" + idMatch, function(data, textStatus, jqXHR) { 
+            console.log("Get resposne:"); 
+            // console.dir(data); 
+            // console.log(textStatus); 
+            // console.dir(jqXHR); 
+            }).done(function (data) {
+                console.log("==========================================")
+                console.log(sendInfo.activities);
+                jQuery.ajax({
+                    url: "/db/" + idMatch, 
+                    type: "PUT",
+                    data: {
+                        date: sendInfo.date,  
+                        activities: JSON.stringify(sendInfo.activities),
+                        survey: JSON.stringify(sendInfo.survey)
+                    }, 
+                    success: function (data, textStatus, jqXHR) { 
+                    }
+                });
+            });
+
+
+        }
+
+        // Reload chart after POSTING/PUTTING NEW RECORD
     }
 
     /* CLICK EVENTS */
@@ -275,6 +283,26 @@ $(document).ready(function () {
         //Add user input (Date, Activities, and Surveys to Mongo Document)
         addNewDay(selectedDate, activities, surveyArray);
         getData();
+    });
+
+    $("#debugSubmit").click('on', function (e) {
+        e.preventDefault();
+
+        jQuery.ajax({
+            url: "/db/581e167580f7853970f54ec4", 
+            type: "PUT",
+            data: {
+            "date": "12/10/2015",  
+            "activities": ["Watched TV", "Worked"],  
+            "survey": ["3","4","5"]
+            }, 
+            success: function (data, textStatus, jqXHR) { 
+                console.log("Post resposne:"); 
+                console.dir(data); 
+                console.log(textStatus); 
+                console.dir(jqXHR); 
+            }
+        });
     });
 
     //When button in #activity div, move to other subDiv    #unselected <---> #selected
